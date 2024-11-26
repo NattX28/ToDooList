@@ -4,7 +4,10 @@ const morgan = require("morgan");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const { readdirSync } = require("fs");
+const connectDB = require("./Configs/db");
 require("dotenv").config();
+
+connectDB();
 
 const PORT = process.env.PORT || 5000;
 
