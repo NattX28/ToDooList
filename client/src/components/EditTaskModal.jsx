@@ -1,8 +1,59 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { DatePicker } from "rsuite";
 import "rsuite/dist/rsuite-no-reset.min.css";
+import { readTask, updateTask } from "./functions/TaskFunc";
 
-const EditTaskModal = ({ setOpenEditModal }) => {
+const EditTaskModal = ({ setOpenEditModal, taskId }) => {
+  const [form, setForm] = useState({
+    title: "",
+    dueDate: null,
+    description: "",
+  });
+
+  useEffect(() => {
+    loadTask(taskId);
+  }, []);
+
+  const [errorInput, setErrorInput] = useState("");
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const loadTask = async (id) => {
+    readTask(id).then((res) => {
+      setForm(res.data);
+    });
+  };
+
+  const validateInput = () => {
+    const { title, dueDate, description } = form;
+    if (!title || !dueDate || !description) {
+      return "please fill in all fields";
+    }
+  };
+
+  const editTask = async () => {
+    try {
+      updateTask(taskId, form);
+      setOpenEditModal(false); // ปิด modal หลังส่งสำเร็จ
+    } catch (error) {
+      console.error("Error creating task:", error);
+      setErrorInput("ไม่สามารถสร้างงานได้");
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const validateError = validateInput();
+    if (validateError) {
+      setErrorInput(validateError);
+      return;
+    } else {
+      editTask();
+    }
+  };
+
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -13,10 +64,10 @@ const EditTaskModal = ({ setOpenEditModal }) => {
           >
             ✕
           </button>
-          <h3 className="font-bold text-lg">Edit task :D</h3>
+          <h3 className="font-bold text-lg">Add new task :D</h3>
           {/* <p className="py-4">Press ESC key or click on ✕ button to close</p> */}
 
-          <form action="">
+          <form action="" onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div>
                 <label className="form-control w-full max-w-xs">
@@ -27,6 +78,9 @@ const EditTaskModal = ({ setOpenEditModal }) => {
                     type="text"
                     placeholder="Type here"
                     className="input input-bordered w-full max-w-xs"
+                    name="title"
+                    value={form.title}
+                    onChange={(e) => handleChange(e)}
                   />
                 </label>
               </div>
@@ -40,6 +94,9 @@ const EditTaskModal = ({ setOpenEditModal }) => {
                   style={{ width: "60%" }}
                   size="lg"
                   container={document.body} // This is important!
+                  name="dueDate"
+                  value={new Date(form.dueDate)}
+                  onChange={(date) => setForm({ ...form, dueDate: date })}
                 />
               </div>
 
@@ -50,9 +107,13 @@ const EditTaskModal = ({ setOpenEditModal }) => {
                 <textarea
                   placeholder="Bio"
                   className="textarea textarea-bordered textarea-md w-full max-w-xs"
+                  name="description"
+                  value={form.description}
+                  onChange={(e) => handleChange(e)}
                 ></textarea>
               </div>
             </div>
+            {errorInput}
             <div className="flex justify-center mt-8">
               <button
                 type="submit"
@@ -60,10 +121,7 @@ const EditTaskModal = ({ setOpenEditModal }) => {
               >
                 Add
               </button>
-              <button
-                type="submit"
-                className="btn bg-red-500 text-white w-20 mx-2"
-              >
+              <button className="btn bg-red-500 text-white w-20 mx-2">
                 clear
               </button>
             </div>

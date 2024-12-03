@@ -2,7 +2,21 @@ const Task = require("../Models/taskModel");
 
 exports.getAllTask = async (req, res) => {
   try {
-  } catch (err) {}
+    const allTask = await Task.find({}).exec();
+    res.send(allTask);
+  } catch (err) {
+    res.status(500).send("getAllTask api error");
+  }
+};
+
+exports.readTask = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const task = await Task.findOne({ _id: id }).exec();
+    res.send(task);
+  } catch (err) {
+    res.status(500).send("readTask api error");
+  }
 };
 
 exports.createTask = async (req, res) => {
@@ -22,5 +36,31 @@ exports.createTask = async (req, res) => {
     res.send(newTask);
   } catch (err) {
     res.status(500).send("create task api error");
+  }
+};
+
+exports.updateTask = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const newData = req.body;
+
+    const updateData = await Task.findOneAndUpdate({ _id: id }, newData, {
+      new: true,
+    }).exec();
+    res.send(updateData);
+  } catch (err) {
+    res.status(500).send("update task api error");
+  }
+};
+
+exports.removeTask = async (req, res) => {
+  try {
+    const id = req.params.id;
+    console.log("id in remove ", id);
+    const removed = await Task.findOneAndDelete({ _id: id }).exec();
+    console.log(removed);
+    res.send(removed);
+  } catch (err) {
+    res.status(500).send("remove task api error");
   }
 };

@@ -1,12 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../layouts/Navbar";
 import Task from "../Task";
 import TodayTask from "../TodayTask";
 
 import AddTaskModal from "../AddTaskModal";
 
+import { getTasks } from "../functions/TaskFunc";
+
 const Home = () => {
   const [openModal, setOpenModal] = useState(false);
+  const [tasks, setTasks] = useState([]);
+
+  const loadTasks = async () => {
+    getTasks()
+      .then((res) => {
+        setTasks(res.data);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  useEffect(() => {
+    loadTasks();
+  }, [openModal]);
 
   return (
     <>
@@ -24,8 +39,10 @@ const Home = () => {
             complete
           </button>
         </div>
-        <Task />
-        {/* <Task /> */}
+
+        {/* render task */}
+        {tasks.length > 0 &&
+          tasks.map((task, index) => <Task key={index} taskData={task} />)}
       </div>
       <button
         className="flex justify-center items-center w-14 h-14 bg-contrast rounded-full fixed bottom-8 right-8"
