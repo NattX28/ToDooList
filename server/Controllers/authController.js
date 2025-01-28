@@ -35,7 +35,7 @@ exports.login = async (req, res) => {
   try {
     // 1. check user
     const { username, password } = req.body;
-    let user = await User.findOneAndUpdate({ name }, { new: true });
+    let user = await User.findOneAndUpdate({ username }, { new: true });
 
     // if have user's username in database
     if (user) {
